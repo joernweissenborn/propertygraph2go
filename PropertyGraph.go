@@ -1,4 +1,4 @@
-package PropertyGraph
+package PropertyGraph2Go
 
 type PropertyGraph struct {
 	vertices map[string]*Vertex
