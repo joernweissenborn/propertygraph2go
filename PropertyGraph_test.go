@@ -1,4 +1,4 @@
-package PropertyGraph
+package propertygraph2go
 
 import "testing"
 

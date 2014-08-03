@@ -96,7 +96,7 @@ func TestReadGraph(T *testing.T) {
 	}
 	e := ng.GetEdge(e1.Id)
 	if  e == nil {
-		T.Error("Could not retrieve vertex")
+		T.Error("Could not retrieve edge")
 	}
 }
 

@@ -1,2 +1,0 @@
-package propertygraph2go
-
