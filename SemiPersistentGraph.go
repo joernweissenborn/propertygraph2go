@@ -49,6 +49,35 @@ func (spg *SemiPersistentGraph) CreateEdge(id string, label string, head *Vertex
 	spg.pers.CreateEdge(id,label,head.Id,tail.Id,properties)
 	return spg.nonpers.CreateEdge(id,label,head,tail,properties)
 }
+
+func (spg *SemiPersistentGraph)PersistVertex(id string){
+	if !spg.isVertexPersistent(id) {
+		v := spg.nonpers.GetVertex(id)
+		if v == nil {
+			return
+		}
+		spg.pers.CreateVertex(id,v.Properties)
+		for _, e := range v.Incoming{
+			if spg.isVertexPersistent(e.Tail.Id){
+				spg.pers.CreateEdge(e.Id,e.Label,e.Head.Id,e.Tail.Id,e.Properties)
+			}
+		}
+		for _, e := range v.Outgoing{
+			if spg.isVertexPersistent(e.Head.Id){
+				spg.pers.CreateEdge(e.Id,e.Label,e.Head.Id,e.Tail.Id,e.Properties)
+			}
+		}
+	}
+}
+
+func (spg *SemiPersistentGraph)isVertexPersistent(id string) bool {
+	_, err := spg.pers.GetVertex(id)
+	if err != nil {
+		return true
+	}
+	return false
+
+}
 func (spg *SemiPersistentGraph)RemoveEdge(id string){
 	spg.pers.RemoveEdge(id)
 	spg.nonpers.RemoveEdge(id)

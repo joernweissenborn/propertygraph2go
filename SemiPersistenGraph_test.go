@@ -3,6 +3,7 @@ package propertygraph2go
 import (
 	"os"
 	"testing"
+	"log"
 )
 
 var semigraph SemiPersistentGraph
@@ -27,7 +28,7 @@ func TestSemiGraphReInit(T *testing.T) {
 
 	semigraph = SemiPersistentGraph{}
 	semigraph.SetPath(semitestpath)
-	semigraph.Init()
+	log.Println(semigraph.Init())
 
 	v1 = semigraph.GetVertex("1")
 	if v1 == nil {

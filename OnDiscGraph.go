@@ -6,6 +6,7 @@ import (
 	"encoding/gob"
 	"path"
 	"path/filepath"
+	"log"
 )
 
 type OnDiscGraph struct {
@@ -96,8 +97,8 @@ func (odg OnDiscGraph) WriteEdge(e *Edge) error{
 }
 
 func writeElement(element interface {},path string) error{
-
-	file, err := os.Create(path)
+	os.Remove(path)
+	file, err := os.OpenFile(path, os.O_RDWR | os.O_CREATE, 0666)
 	if err != nil {
 		return err
 	}
@@ -196,7 +197,7 @@ func (odg OnDiscGraph) RemoveEdge(id string) (err error) {
 
 func (odg OnDiscGraph) GetVertex(id string) (v WriteableVertex, err error) {
 	vertexpath := path.Join(odg.vertexpath,id)
-	file,err := os.Open(vertexpath)
+	file,err := os.OpenFile(vertexpath,os.O_RDWR,0666)
 	if err != nil {
 		return
 	}
@@ -207,12 +208,13 @@ func (odg OnDiscGraph) GetVertex(id string) (v WriteableVertex, err error) {
 
 func (odg OnDiscGraph) GetEdge(id string) (e WriteableEdge, err error) {
 	edgepath := path.Join(odg.edgepath,id)
-	file,err := os.Open(edgepath)
+	file,err := os.OpenFile(edgepath,os.O_RDWR,0666)
 	if err != nil {
 		return
 	}
 	dec := gob.NewDecoder(file)
 	err = dec.Decode(&e)
+
 	return
 }
 
@@ -229,8 +231,10 @@ func (odg OnDiscGraph) CreateInMemoryGraph() (img *InMemoryGraph, err error) {
 	img = New()
 	err = filepath.Walk(odg.vertexpath,func(p string, f os.FileInfo, err error) error{
 		if !f.IsDir() {
+			log.Println(f.Name())
 			v, err := odg.GetVertex(f.Name())
 			if err!=nil {
+				panic(f.Name())
 				return err
 			}
 
@@ -244,6 +248,7 @@ func (odg OnDiscGraph) CreateInMemoryGraph() (img *InMemoryGraph, err error) {
 
 func (odg OnDiscGraph) addVertexToImg(img *InMemoryGraph, v WriteableVertex) {
 	imv := img.GetVertex(v.Id)
+	log.Println(v)
 	if imv == nil{
 		imv = img.CreateVertex(v.Id,v.Properties)
 	}
