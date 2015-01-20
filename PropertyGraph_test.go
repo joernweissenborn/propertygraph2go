@@ -3,7 +3,8 @@ package propertygraph2go
 import "testing"
 
 func TestReadEmpty(t *testing.T) {
-	graph := New()
+	var graph PropertyGraph
+	graph = NewInMemoryGraph()
 	ev := graph.GetVertex("empty")
 	if ev == nil {
 		t.Log("Empty vertex query returned", ev)
@@ -20,7 +21,8 @@ func TestReadEmpty(t *testing.T) {
 }
 
 func TestWriteReadVertex(t *testing.T) {
-	graph := New()
+	var graph PropertyGraph
+	graph = NewInMemoryGraph()
 	type testprops struct {
 		Name string
 	}
@@ -31,7 +33,7 @@ func TestWriteReadVertex(t *testing.T) {
 
 	v := graph.GetVertex("test")
 
-	rprops, found := v.Properties.(testprops)
+	rprops, found := v.Properties().(testprops)
 
 	if !found {
 		t.Error("Write Read test type assertion failed")
@@ -48,7 +50,8 @@ func TestWriteReadVertex(t *testing.T) {
 }
 
 func TestWriteReadEdge(t *testing.T) {
-	graph := New()
+	var graph PropertyGraph
+	graph = NewInMemoryGraph()
 
 	v1 := graph.CreateVertex("1", nil)
 	v2 := graph.CreateVertex("2", nil)
@@ -62,22 +65,22 @@ func TestWriteReadEdge(t *testing.T) {
 		return
 	}
 
-	if e.Head.Id != v1.Id {
+	if e.Head().Id() != v1.Id() {
 		t.Error("Could not retrieve head")
 		return
 	}
 
-	if e.Tail.Id != v2.Id {
+	if e.Tail().Id() != v2.Id() {
 		t.Error("Could not retrieve tail")
 		return
 	}
 
-	if v1.Incoming[0].Tail.Id != v2.Id {
+	if v1.Incoming()[0].Tail().Id() != v2.Id() {
 		t.Error("Could not retrieve tail")
 		return
 	}
 
-	if v2.Outgoing[0].Head.Id != v1.Id {
+	if v2.Outgoing()[0].Head().Id() != v1.Id() {
 		t.Error("Could not retrieve head")
 		return
 	}

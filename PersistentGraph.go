@@ -1,5 +1,5 @@
 package propertygraph2go
-
+/*
 type PersitentGraph struct {
 	path string
 	img *InMemoryGraph
@@ -67,3 +67,4 @@ func (pg PersitentGraph)GetIncomingEdgesByLabel(id string, label string) []*Edge
 func (pg PersitentGraph)GetOutgoingEdgesByLabel(id string, label string) []*Edge{
 	return pg.img.GetOutgoingEdgesByLabel(id,label)
 }
+*/

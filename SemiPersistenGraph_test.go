@@ -1,5 +1,5 @@
 package propertygraph2go
-
+/*
 import (
 	"os"
 	"testing"
@@ -51,3 +51,4 @@ func TestSemiGraphReInit(T *testing.T) {
 		T.Error("Could retrieve vertex")
 	}
 }
+*/

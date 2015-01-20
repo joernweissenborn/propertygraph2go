@@ -1,5 +1,5 @@
 package propertygraph2go
-
+/*
 import (
 	"testing"
 	"os"
@@ -102,3 +102,4 @@ func TestReadGraph(T *testing.T) {
 
 
 
+*/

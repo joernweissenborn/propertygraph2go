@@ -1,5 +1,5 @@
 package propertygraph2go
-
+/*
 type SemiPersistentGraph struct {
 	path string
 	nonpers *InMemoryGraph
@@ -91,3 +91,4 @@ func (spg *SemiPersistentGraph)GetIncomingEdgesByLabel(id string, label string) 
 func (spg *SemiPersistentGraph)GetOutgoingEdgesByLabel(id string, label string) []*Edge{
 	return spg.nonpers.GetOutgoingEdgesByLabel(id,label)
 }
+*/
