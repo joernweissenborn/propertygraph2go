@@ -6,7 +6,6 @@ import (
 	"encoding/gob"
 	"path"
 	"path/filepath"
-	"log"
 )
 
 type OnDiscGraph struct {
@@ -231,7 +230,6 @@ func (odg OnDiscGraph) CreateInMemoryGraph() (img *InMemoryGraph, err error) {
 	img = New()
 	err = filepath.Walk(odg.vertexpath,func(p string, f os.FileInfo, err error) error{
 		if !f.IsDir() {
-			log.Println(f.Name())
 			v, err := odg.GetVertex(f.Name())
 			if err!=nil {
 				panic(f.Name())
@@ -248,7 +246,6 @@ func (odg OnDiscGraph) CreateInMemoryGraph() (img *InMemoryGraph, err error) {
 
 func (odg OnDiscGraph) addVertexToImg(img *InMemoryGraph, v WriteableVertex) {
 	imv := img.GetVertex(v.Id)
-	log.Println(v)
 	if imv == nil{
 		imv = img.CreateVertex(v.Id,v.Properties)
 	}

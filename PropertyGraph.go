@@ -9,9 +9,13 @@ type InMemoryGraph struct {
 
 
 
+func (pg *InMemoryGraph) Init() {
 
 
+	pg.vertices = make(map[string]*Vertex)
+	pg.edges = make(map[string]*Edge)
 
+}
 //NewPersistant initializes a persistent Property graph at given location
 
 func (pg *InMemoryGraph) CreateVertex(id string, properties interface{}) *Vertex {
