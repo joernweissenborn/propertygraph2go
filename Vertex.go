@@ -6,5 +6,7 @@ type Vertex interface {
 	RemoveIncomingEdge(id string)
 	RemoveOutgoingEdge(id string)
 	Properties() interface{}
+	AddIncomingEdge(e Edge)
+	AddOutgoingEdge(e Edge)
 }
 

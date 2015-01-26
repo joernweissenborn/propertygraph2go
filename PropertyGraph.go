@@ -57,6 +57,15 @@ func (v *inMemVertex) RemoveIncomingEdge(id string) {
 	}
 }
 
+func (v *inMemVertex) AddIncomingEdge(e Edge) {
+	 v.incoming = append(v.incoming,e.(*inMemEdge))
+}
+
+
+func (v *inMemVertex) AddOutgoingEdge(e Edge) {
+	 v.outgoing = append(v.outgoing,e.(*inMemEdge))
+}
+
 
 type inMemEdge struct {
 	id         string
@@ -159,11 +168,14 @@ func (pg *InMemoryGraph) GetVertex(id string) Vertex {
 	if v := pg.vertices[id]; v !=nil {
 		return v
 	}
-	return new(inMemVertex)
+	return nil
 }
 
 func (pg *InMemoryGraph) GetEdge(id string) Edge {
-	return pg.edges[id]
+	if v := pg.edges[id]; v != nil {
+		return v
+	}
+	return nil
 }
 
 func (pg *InMemoryGraph) GetIncomingEdgesByLabel(id string, label string) []Edge {

@@ -1,118 +1,40 @@
 package propertygraph2go
-/*
+
 import (
 	"errors"
 	"os"
 	"encoding/gob"
 	"path"
 	"path/filepath"
+	"fmt"
 )
 
 type OnDiscGraph struct {
+	basepath string
 	vertexpath string
 	edgepath string
 }
 
-type WriteableVertex struct {
-	id string
-	incoming []*WriteableEdge
-	outgoing []*WriteableEdge
-	properties interface {}
-}
-
-func (v WriteableVertex) Id() string {
-	return v.id
-	
-}
-
-func (v WriteableVertex) Outgoing() ([]Edge) {
-
-	return v.outgoing
-	
-}
-func (v WriteableVertex) Incoming() ([]Edge) {
-
-	return v.incoming
-
-}
-func (v WriteableVertex) Properties() (interface {}) {
-
-	return v.properties
-
-}
-
-func (v *WriteableVertex) AddOutgoingEdge(e *WriteableEdge) {
-	v.outgoing = append(v.outgoing,e)
-}
-
-func (v *WriteableVertex) RemoveOutgoingEdge(edgeId string) {
-	for i, e := range v.outgoing {
-		if e.Id() == edgeId {
-			v.outgoing[i] = v.outgoing[len(v.outgoing)-1]
-			v.outgoing = v.outgoing[:len(v.outgoing)-1]
-		}
-	}
-}
-
-func (v *WriteableVertex) AddIncomingEdge(e *WriteableEdge) {
-	v.incoming = append(v.incoming,e)
-}
 
 
-func (v *WriteableVertex) RemoveIncomingEdge(edgeId string) {
-	for i, e := range v.incoming {
-		if e.Id() == edgeId {
-			v.incoming[i] = v.incoming[len(v.incoming)-1]
-			v.incoming = v.incoming[:len(v.incoming)-1]
-		}
-	}
-}
-
-type WriteableEdge struct {
-	id string
-	label string
-	head *WriteableVertex
-	tail *WriteableVertex
-	properties interface {}
-}
-func (e WriteableEdge) Id() string {
-	return e.id
-
-}
-func (e WriteableEdge) Label() string {
-	return e.label
-
-}
-func (e WriteableEdge) Head() Vertex {
-	return e.head
-
-}
-func (e WriteableEdge) Tail() Vertex {
-	return e.tail
-
-}
-func (e WriteableEdge) Properties() interface {} {
-	return e.properties
-
-}
-
-func (odg *OnDiscGraph) init(basepath string) error{
+func (odg *OnDiscGraph) Init(basepath string) {
+	odg.basepath = basepath
 	odg.vertexpath = path.Join(basepath,"vertices")
 	odg.edgepath = path.Join(basepath,"edges")
 	err := os.MkdirAll(odg.vertexpath,os.ModeDir)
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	err = os.MkdirAll(odg.edgepath,os.ModeDir)
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	gob.Register(WriteableVertex{})
 	gob.Register(WriteableEdge{})
 
-	return nil
+	return
 
 }
 
@@ -151,15 +73,17 @@ func writeElement(element interface {},path string) error{
 
 	return nil
 }
-func (odg OnDiscGraph) CreateVertex(id string, properties interface{}) (v *WriteableVertex, err error){
+func (odg OnDiscGraph) CreateVertex(id string, properties interface{}) Vertex{
 	wv := WriteableVertex{
+		odg.basepath,
 		id,
-		[]*WriteableEdge{},
-		[]*WriteableEdge{},
+		[]string{},
+		[]string{},
 		properties}
-	err = writeElement(wv,path.Join(odg.vertexpath,id))
-	v = &wv
-	return
+	
+	writeElement(wv,path.Join(odg.vertexpath,id))
+
+	return &wv
 }
 
 func (odg OnDiscGraph) RemoveVertex(id string) {
@@ -177,22 +101,25 @@ func (odg OnDiscGraph) RemoveVertex(id string) {
 func (odg OnDiscGraph) CreateEdge(id string, label string,
 	head Vertex, tail Vertex, properties interface{})(e Edge){
 	te := WriteableEdge{
+		odg.basepath,
 		id,
 		label,
-		convertToWritableVertex(head),
-		convertToWritableVertex(tail),
+		head.Id(),
+		tail.Id(),
 		properties}
-	v := convertToWritableVertex(head)
-	v.AddIncomingEdge(&te)
+
+	whead:= convertToWritableVertex(head)
+
+	whead.AddIncomingEdge(&te)
 	e = &te
-	err := writeElement(v,path.Join(odg.vertexpath,v.Id()))
+	err := writeElement(whead,path.Join(odg.vertexpath,head.Id()))
 	if err != nil {
 		return
 	}
-	v = convertToWritableVertex(tail)
 
-	v.AddOutgoingEdge(&te)
-	err = writeElement(v,path.Join(odg.vertexpath,v.Id()))
+		wtail := convertToWritableVertex(tail)
+	wtail.AddOutgoingEdge(&te)
+	err = writeElement(wtail,path.Join(odg.vertexpath,tail.Id()))
 	if err != nil {
 		return
 	}
@@ -223,27 +150,27 @@ func (odg OnDiscGraph) RemoveEdge(id string) (err error) {
 }
 
 
-func (odg OnDiscGraph) GetVertex(id string) (v Vertex) {
-	vertexpath := path.Join(odg.vertexpath,id)
-	file,err := os.OpenFile(vertexpath,os.O_RDWR,0666)
-	if err != nil {
-		return
+func (odg OnDiscGraph) GetVertex(id string) (Vertex) {
+	var wv WriteableVertex
+	wv.path = odg.basepath
+	ok := wv.readFromFile(id)
+	if !ok {
+		return nil
+		
 	}
-	dec := gob.NewDecoder(file)
-	err = dec.Decode(&v)
-	return
+	return &wv
 }
 
-func (odg OnDiscGraph) GetEdge(id string) (e Edge) {
-	edgepath := path.Join(odg.edgepath,id)
-	file,err := os.OpenFile(edgepath,os.O_RDWR,0666)
-	if err != nil {
-		return
-	}
-	dec := gob.NewDecoder(file)
-	err = dec.Decode(&e)
+func (odg OnDiscGraph) GetEdge(id string) (Edge) {
+	var we WriteableEdge
+	we.path = odg.basepath
+	ok := we.readFromFile(id)
+	if !ok {
+		return nil
 
-	return
+	}
+
+	return &we
 }
 
 func getItem(path string,item interface {})error{
@@ -255,12 +182,13 @@ func getItem(path string,item interface {})error{
 	return dec.Decode(&item)
 }
 
-func (odg OnDiscGraph) CreateInMemoryGraph() (img *InMemoryGraph, err error) {
+func (odg *OnDiscGraph) CreateInMemoryGraph() (img *InMemoryGraph, err error) {
 	img = NewInMemoryGraph()
 	err = filepath.Walk(odg.vertexpath,func(p string, f os.FileInfo, err error) error{
 		if !f.IsDir() {
 			v := odg.GetVertex(f.Name())
-			
+		
+
 			odg.addVertexToImg(img,v)
 
 		}
@@ -274,27 +202,30 @@ func (odg OnDiscGraph) addVertexToImg(img *InMemoryGraph, v Vertex) {
 	if imv == nil{
 		imv = img.CreateVertex(v.Id(),v.Properties)
 	}
-	for _,in := range v.Incoming() {
-		e := odg.GetEdge(in.Id())
+	fmt.Println("ggggggggggggggg",v)
 
+	for _,e := range v.Incoming() {
+		odg.addEdgeToImg(img,e)
+	}	
+	for _,e := range v.Outgoing() {
+		
 		odg.addEdgeToImg(img,e)
 	}
 }
 
 func (odg OnDiscGraph) addEdgeToImg(img *InMemoryGraph, e Edge) {
-
 	ime := img.GetEdge(e.Id())
+
 	if ime == nil {
 		tail := img.GetVertex(e.Tail().Id())
 		if tail == nil {
-			v := odg.GetVertex(e.Tail().Id())
-			odg.addVertexToImg(img,v)
+
+			odg.addVertexToImg(img,e.Tail())
 			tail = img.GetVertex(e.Tail().Id())
 		}
 		head := img.GetVertex(e.Head().Id())
 		if head == nil {
-			v := odg.GetVertex(e.Head().Id())
-			odg.addVertexToImg(img,v)
+			odg.addVertexToImg(img,e.Head())
 			head = img.GetVertex(e.Head().Id())
 		}
 		img.CreateEdge(e.Id(),e.Label(),head,tail,e.Properties())
@@ -310,28 +241,25 @@ func flushFile(f *os.File) *os.File{
 }
 
 
-func convertToWritableVertex(v Vertex) (wv *WriteableVertex) {
-	var t WriteableVertex
-	
-	wv = &t 
-	wv.id = v.Id()
+func convertToWritableVertex(v Vertex) (*WriteableVertex) {
+	var wv WriteableVertex
+	wv.Vid = v.Id()
 	for _,e := range v.Incoming() {
-		wv.incoming = append(wv.incoming,e)
+		wv.Vincoming = append(wv.Vincoming,e.Id())
 	}
 	for _,e := range v.Outgoing() {
-		wv.outgoing = append(wv.outgoing, e)
+		wv.Voutgoing = append(wv.Voutgoing, e.Id())
 	}
-	wv.properties = v.Properties()
-	return
+	wv.Vproperties = v.Properties()
+	return &wv
 }
-func convertToWritableEdge(e Edge) (we *WriteableEdge) {
-	var t WriteableEdge
-	we = &t
-	we.id = e.Id()
-	we.label = e.Label()
-	we.head = e.Tail().Id()
-	we.tail = e.Tail().Id()
-	we.properties = e.Properties()
-	return
+func convertToWritableEdge(e Edge) (*WriteableEdge) {
+		var we WriteableEdge
+	we.Eid = e.Id()
+	we.Elabel = e.Label()
+	we.Etail = e.Tail().Id()
+	we.Ehead = e.Head().Id()
+	we.Eproperties = e.Properties()
+	return &we
 }
-*/
+

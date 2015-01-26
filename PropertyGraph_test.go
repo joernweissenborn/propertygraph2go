@@ -15,7 +15,7 @@ func TestReadEmpty(t *testing.T) {
 	if ee == nil {
 		t.Log("Empty edge query returned", ee)
 	} else {
-		t.Error("Empty edge query did not return nil")
+		t.Error("Empty edge query did not return nil, returned",ee==nil)
 	}
 
 }

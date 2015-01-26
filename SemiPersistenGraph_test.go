@@ -1,9 +1,8 @@
 package propertygraph2go
-/*
+
 import (
 	"os"
 	"testing"
-	"log"
 )
 
 var semigraph SemiPersistentGraph
@@ -14,9 +13,7 @@ func TestSemiGraphInit(T *testing.T) {
 		T.Error(err)
 	}
 	semigraph.SetPath(semitestpath)
-	if err :=  semigraph.Init(); err != nil {
-		T.Error(err)
-	}
+	 semigraph.Init()
 }
 
 func TestSemiGraphReInit(T *testing.T) {
@@ -28,7 +25,7 @@ func TestSemiGraphReInit(T *testing.T) {
 
 	semigraph = SemiPersistentGraph{}
 	semigraph.SetPath(semitestpath)
-	log.Println(semigraph.Init())
+	semigraph.Init()
 
 	v1 = semigraph.GetVertex("1")
 	if v1 == nil {
@@ -51,4 +48,4 @@ func TestSemiGraphReInit(T *testing.T) {
 		T.Error("Could retrieve vertex")
 	}
 }
-*/
+

@@ -1,5 +1,5 @@
 package propertygraph2go
-/*
+
 import (
 	"testing"
 	"os"
@@ -9,7 +9,7 @@ var testpath = "c:/test"
 
 var odg OnDiscGraph
 
-var graph = New()
+var graph = NewInMemoryGraph()
 
 var v1 = graph.CreateVertex("1",42)
 
@@ -21,9 +21,7 @@ func TestInit(T *testing.T){
 	if err :=  os.RemoveAll(testpath); err != nil {
 		T.Error(err)
 	}
-	if err :=  odg.init(testpath); err != nil {
-		T.Error(err)
-}
+	odg.Init(testpath);
 }
 
 func TestWriteVertex(T *testing.T) {
@@ -53,29 +51,29 @@ func TestWriteEdge(T *testing.T) {
 }
 
 func TestReadVertex(T *testing.T) {
-	_, err :=  odg.GetVertex("non-existant")
-	if  err == nil {
+	v :=  odg.GetVertex("non-existant")
+	if  v != nil {
 		T.Error("Could retrieve non-existant vertex")
 	}
-	v, err :=  odg.GetVertex("1")
-	if  err != nil {
-		T.Error(err)
+	v =  odg.GetVertex("1")
+	if   v.Id() == "" {
+		T.Error("Could not retrieve vertex")
 	}
-	if v.Properties != convertToWritableVertex(v1).Properties {
+	if v.Properties() != convertToWritableVertex(v1).Properties() {
 		T.Error("Could not retrieve vertex")
 	}
 }
 
 func TestReadEdge(T *testing.T) {
-	_, err :=  odg.GetEdge("non-existant")
-	if  err == nil {
+	e :=  odg.GetEdge("non-existant")
+	if  e != nil {
 		T.Error("Could retrieve non-existant edge")
 	}
-	e, err :=  odg.GetEdge("1")
-	if  err != nil {
-		T.Error(err)
+	e =  odg.GetEdge("1")
+	if  e.Id() == ""  {
+		T.Error("Could not retrieve edge")
 	}
-	if e.Properties != convertToWritableEdge(e1).Properties {
+	if e.Properties() != convertToWritableEdge(e1).Properties() {
 		T.Error("Could not retrieve edge")
 	}
 }
@@ -86,20 +84,19 @@ func TestReadGraph(T *testing.T) {
 		T.Error(err)
 	}
 
-	v := ng.GetVertex(v1.Id)
+	v := ng.GetVertex(v1.Id())
 	if  v == nil {
 		T.Error("Could not retrieve vertex")
 	}
-	v = ng.GetVertex(v2.Id)
+	v = ng.GetVertex(v2.Id())
 	if  v == nil {
 		T.Error("Could not retrieve vertex")
 	}
-	e := ng.GetEdge(e1.Id)
+	e := ng.GetEdge(e1.Id())
 	if  e == nil {
-		T.Error("Could not retrieve edge")
+		T.Error("Could not retrieve edge", e1.Id())
 	}
 }
 
 
 
-*/
