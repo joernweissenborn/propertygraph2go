@@ -7,18 +7,18 @@ func NewInMemoryGraph() *InMemoryGraph {
 	return &g
 }
 
-type inMemVertex struct {
+type InMemVertex struct {
 	id         string
-	incoming   []*inMemEdge
-	outgoing   []*inMemEdge
+	incoming   []*InMemEdge
+	outgoing   []*InMemEdge
 	properties interface{}
 }
 
-func (v *inMemVertex) Id() string {
+func (v *InMemVertex) Id() string {
 	return v.id
 }
 
-func (v *inMemVertex) Incoming() []Edge {
+func (v *InMemVertex) Incoming() []Edge {
 	es := []Edge{}
 	for _, e:= range v.incoming {
 		es = append(es,e)
@@ -27,7 +27,7 @@ func (v *inMemVertex) Incoming() []Edge {
 	return es
 }
 
-func (v *inMemVertex) Outgoing() []Edge {
+func (v *InMemVertex) Outgoing() []Edge {
 	es := []Edge{}
 	for _, e:= range v.outgoing {
 		es = append(es,e)
@@ -35,11 +35,11 @@ func (v *inMemVertex) Outgoing() []Edge {
 	}
 	return es}
 
-func (v *inMemVertex) Properties() interface {} {
+func (v *InMemVertex) Properties() interface {} {
 	return v.properties
 }
 
-func (v *inMemVertex) RemoveOutgoingEdge(id string) {
+func (v *InMemVertex) RemoveOutgoingEdge(id string) {
 	for i, e := range v.outgoing {
 		if e.Id() == id {
 			v.outgoing[i] = v.outgoing[len(v.outgoing)-1]
@@ -48,7 +48,7 @@ func (v *inMemVertex) RemoveOutgoingEdge(id string) {
 	}
 }
 
-func (v *inMemVertex) RemoveIncomingEdge(id string) {
+func (v *InMemVertex) RemoveIncomingEdge(id string) {
 	for i, e := range v.incoming {
 		if e.Id() == id {
 			v.incoming[i] = v.incoming[len(v.incoming)-1]
@@ -57,41 +57,42 @@ func (v *inMemVertex) RemoveIncomingEdge(id string) {
 	}
 }
 
-func (v *inMemVertex) AddIncomingEdge(e Edge) {
-	 v.incoming = append(v.incoming,e.(*inMemEdge))
+func (v *InMemVertex) AddIncomingEdge(e Edge) {
+	 v.incoming = append(v.incoming,e.(*InMemEdge))
 }
 
 
-func (v *inMemVertex) AddOutgoingEdge(e Edge) {
-	 v.outgoing = append(v.outgoing,e.(*inMemEdge))
+func (v *InMemVertex) AddOutgoingEdge(e Edge) {
+	 v.outgoing = append(v.outgoing,e.(*InMemEdge))
 }
 
 
-type inMemEdge struct {
+
+type InMemEdge struct {
 	id         string
 	label      string
-	head       *inMemVertex
-	tail       *inMemVertex
+	head       *InMemVertex
+	tail       *InMemVertex
 	properties interface{}
 }
 
-func (e *inMemEdge) Id() string {
+func (e *InMemEdge) Id() string {
 	return e.id
 }
 
-func (e *inMemEdge) Label() string {
+func (e *InMemEdge) Label() string {
 	return e.label
 }
 
-func (e *inMemEdge) Head() Vertex {
+func (e *InMemEdge) Head() Vertex {
 	return e.head
 }
 
-func (e *inMemEdge) Tail() Vertex {
+func (e *InMemEdge) Tail() Vertex {
 	return e.tail
 }
 
-func (e *inMemEdge) Properties() interface {} {
+func (e *InMemEdge) Properties() interface {} {
 	return e.properties
 }
 
@@ -99,8 +100,8 @@ func (e *inMemEdge) Properties() interface {} {
 
 
 type InMemoryGraph struct {
-	vertices map[string]*inMemVertex
-	edges    map[string]*inMemEdge
+	vertices map[string]*InMemVertex
+	edges    map[string]*InMemEdge
 }
 
 
@@ -108,14 +109,14 @@ type InMemoryGraph struct {
 func (pg *InMemoryGraph) Init() {
 
 
-	pg.vertices = make(map[string]*inMemVertex)
-	pg.edges = make(map[string]*inMemEdge)
+	pg.vertices = make(map[string]*InMemVertex)
+	pg.edges = make(map[string]*InMemEdge)
 
 }
 
 func (pg *InMemoryGraph) CreateVertex(id string, properties interface{}) Vertex {
 
-	var nv inMemVertex
+	var nv InMemVertex
 
 	nv.id = id
 
@@ -128,9 +129,9 @@ func (pg *InMemoryGraph) CreateVertex(id string, properties interface{}) Vertex 
 }
 
 func (pg *InMemoryGraph) CreateEdge(id string, label string, head Vertex, tail Vertex, properties interface{}) Edge {
-	hv := pg.GetVertex(head.Id()).(*inMemVertex)
-	tv := pg.GetVertex(tail.Id()).(*inMemVertex)
-	ne := inMemEdge{
+	hv := pg.GetVertex(head.Id()).(*InMemVertex)
+	tv := pg.GetVertex(tail.Id()).(*InMemVertex)
+	ne := InMemEdge{
 		id,
 		label,
 		hv,
@@ -180,9 +181,12 @@ func (pg *InMemoryGraph) GetEdge(id string) Edge {
 
 func (pg *InMemoryGraph) GetIncomingEdgesByLabel(id string, label string) []Edge {
 	var es []Edge // == nil
-	for _, e := range pg.vertices[id].Incoming() {
-		if e.Label() == label {
-			es = append(es, e)
+	v := pg.vertices[id]
+	if v != nil {
+		for _, e := range v.Incoming() {
+			if e.Label() == label {
+				es = append(es, e)
+			}
 		}
 	}
 	return es
@@ -191,9 +195,12 @@ func (pg *InMemoryGraph) GetIncomingEdgesByLabel(id string, label string) []Edge
 
 func (pg *InMemoryGraph) GetOutgoingEdgesByLabel(id string, label string) []Edge {
 	var es []Edge // == nil
-	for _, e := range pg.vertices[id].Outgoing() {
-		if e.Label() == label {
-			es = append(es, e)
+	v := pg.vertices[id]
+	if v != nil {
+		for _, e := range v.Outgoing() {
+			if e.Label() == label {
+				es = append(es, e)
+			}
 		}
 	}
 	return es
