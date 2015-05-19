@@ -84,7 +84,7 @@ func (tv TransactionItem) Lock(){
 				d.(transactionticket.TransactionTicket).Release.Then(release)
 				return nil
 			})
-		} else {
+		} else if t.Number > tv.ticket.Number {
 			p.writeLock.Dirty.Complete(tv.ticket)
 		}
 	}

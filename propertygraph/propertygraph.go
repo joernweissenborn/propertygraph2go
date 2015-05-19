@@ -1,7 +1,6 @@
 package propertygraph
 
 type PropertyGraph interface {
-	Init()
 	CreateVertex(id string, properties interface{}) Vertex
 	RemoveVertex(id string)
 	GetVertex(id string) Vertex
