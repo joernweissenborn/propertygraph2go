@@ -167,24 +167,24 @@ func DecodeEdge(dec DecodingFunc, g Graph, data []byte) (e Edge, err error) {
 
 type KeyToPath func(Key) string
 
-func EncodeGraph(enc EncodingFunc, g Graph) (vs map[Key][]byte, es map[Key]byte) {
-	vs = map[key][]byte{}
+func EncodeGraph(enc EncodingFunc, g Graph) (vs map[Key][]byte, es map[Key][]byte) {
+	vs = map[Key][]byte{}
 	walkVertices := func(v Vertex) {
-		sv, err := EncodedVertex(enc, v)
+		sv, err := EncodeVertex(enc, v)
 		if err != nil {
 			panic(err)
 		}
 		vs[v.Key()] = sv
 	}
-	es = map[key][]byte{}
+	es = map[Key][]byte{}
 	walkEdges := func(e Edge) {
-		se, err := EncodedEdge(enc, e)
+		se, err := EncodeEdge(enc, e)
 		if err != nil {
 			panic(err)
 		}
 		es[e.Key()] = se
 	}
-	g.WalkVertices(WalkVertices)
-	d.WalkEdges(WalkEdges)
+	g.WalkVertices(walkVertices)
+	g.WalkEdges(walkEdges)
 	return
 }

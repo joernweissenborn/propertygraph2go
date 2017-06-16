@@ -1,7 +1,7 @@
 package propertygraph2go
 
 type SimpleVertex struct {
-	aey        Key
+	key        Key
 	incoming   []*SimpleEdge
 	outgoing   []*SimpleEdge
 	properties map[string]interface{}
